@@ -13,9 +13,11 @@ class DatabaseHelper(context: Context):
             private const val DATABASE_VERSION = 1
             private const val DATABASE_NAME = "app.db"
 
+            lateinit var db: DatabaseHelper
+
             private const val SQL_CREATE_SETTINGS =
                 ("CREATE TABLE ${DatabaseSchema.Settings.TABLE_NAME} (" +
-                        "${DatabaseSchema.Settings.COLUMN_NAME_KEY} TEXT PRIMARY KEY," +
+                        "${DatabaseSchema.Settings.COLUMN_NAME_KEY} TEXT NOT NULL UNIQUE," +
                         "${DatabaseSchema.Settings.COLUMN_NAME_VALUE} TEXT)")
 
             private const val SQL_DELETE_SETTINGS = "DROP TABLE IF EXISTS ${DatabaseSchema.Settings.TABLE_NAME}"
@@ -27,7 +29,7 @@ class DatabaseHelper(context: Context):
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        Log.i(TAG, "Deleting database")
+        Log.i(TAG, "Upgrading database")
         db.execSQL(SQL_DELETE_SETTINGS)
         onCreate(db)
     }

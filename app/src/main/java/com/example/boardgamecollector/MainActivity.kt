@@ -3,19 +3,26 @@ package com.example.boardgamecollector
 import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.database.sqlite.*
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val dbHelper = DatabaseHelper(this)
-        val db = dbHelper.writableDatabase
+        DatabaseHelper.db = DatabaseHelper(this)
 
-        val values = ContentValues().apply {
-            put(DatabaseSchema.Settings.COLUMN_NAME_KEY, "password")
-        }
-        val newRow = db.insert(DatabaseSchema.Settings.TABLE_NAME, null, values)
+        val setting = Setting("my_key_test", "my_value_test")
+        Setting.insertOne(setting)
+
+        val newSetting = Setting.findOne(setting.key)
+
+        Log.i(TAG, newSetting.toString())
+        DatabaseHelper.db.close()
     }
 }
