@@ -4,7 +4,7 @@ import android.content.ContentValues
 
 class Setting(
     val key: String,
-    val value: String,
+    val value: String?,
     ) {
 
 

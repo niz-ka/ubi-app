@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">BoardGameCollector</string>
+    <string name="username">Username</string>
+    <string name="configuration">Configuration</string>
+    <string name="submit">Submit</string>
+    <string name="synchronization">Synchronization</string>
+    <string name="lastSynchronization">Last synchronization</string>
+    <string name="notSynchronized">Not synchronized</string>
+    <string name="synchronize">Synchronize</string>
 </resources>

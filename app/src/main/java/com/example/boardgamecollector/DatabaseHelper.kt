@@ -1,6 +1,7 @@
 package com.example.boardgamecollector
 
 import android.content.Context
+import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
@@ -10,8 +11,8 @@ class DatabaseHelper(context: Context):
 
         companion object {
             private const val TAG = "DatabaseHelper"
-            private const val DATABASE_VERSION = 1
-            private const val DATABASE_NAME = "app.db"
+            const val DATABASE_VERSION = 1
+            const val DATABASE_NAME = "app.db"
 
             lateinit var db: DatabaseHelper
 
