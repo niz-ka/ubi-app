@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.i(TAG,"Creating activity")
+        DatabaseHelper.db = DatabaseHelper(this)
 
        // DB not exists - start Configuration Activity
        if(!getDatabasePath(DatabaseHelper.DATABASE_NAME).exists()) {
@@ -25,7 +26,6 @@ class MainActivity : AppCompatActivity() {
            startActivity(intent)
            finish()
        } else {
-           DatabaseHelper.db = DatabaseHelper(this)
            val intent = Intent(this, SynchronizationActivity::class.java)
            startActivity(intent)
            finish()

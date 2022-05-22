@@ -27,10 +27,9 @@ class ConfigurationActivity : AppCompatActivity() {
 
         submitButton.setOnClickListener {
             val username = usernameEditText.text.toString()
-            DatabaseHelper.db = DatabaseHelper(this)
-            DatabaseHelper.db.writableDatabase
-            Setting.insertOne(Setting(DatabaseSchema.Settings.KEY_USERNAME, username))
-            Setting.insertOne(Setting(DatabaseSchema.Settings.KEY_SYNCHRONIZATION, null))
+
+            Setting.insertOrUpdateOne(Setting(DatabaseSchema.Settings.KEY_USERNAME, username))
+            Setting.insertOrUpdateOne(Setting(DatabaseSchema.Settings.KEY_SYNCHRONIZATION, null))
             Log.i(TAG, "Database created")
 
             val intent = Intent(this, SynchronizationActivity::class.java)

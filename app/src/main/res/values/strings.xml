@@ -7,4 +7,7 @@
     <string name="lastSynchronization">Last synchronization</string>
     <string name="notSynchronized">Not synchronized</string>
     <string name="synchronize">Synchronize</string>
+    <string name="navOpen">Open</string>
+    <string name="navClose">Close</string>
+    <string name="boardGames">Board Games</string>
 </resources>

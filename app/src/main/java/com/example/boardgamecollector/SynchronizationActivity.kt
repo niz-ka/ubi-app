@@ -1,19 +1,23 @@
 package com.example.boardgamecollector
 
-import android.os.AsyncTask
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.util.Xml
-import android.view.ViewParent
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.drawerlayout.widget.DrawerLayout
 import java.lang.Exception
 import java.lang.NullPointerException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.Executors
 
 
 class SynchronizationActivity : AppCompatActivity() {
@@ -24,70 +28,120 @@ class SynchronizationActivity : AppCompatActivity() {
     private lateinit var synchronizationTextView: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var synchronizationButton: Button
-    private lateinit var debugTextView: TextView
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_synchronization)
         Log.i(TAG, "Creating Activity")
         supportActionBar?.title = getString(R.string.synchronization)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         synchronizationTextView = findViewById(R.id.synchronizationTextView)
         progressBar = findViewById(R.id.progressBar)
         synchronizationButton = findViewById(R.id.synchronizationButton)
-        debugTextView = findViewById(R.id.debugTextView)
+        drawerLayout = findViewById(R.id.drawerLayout)
+
+        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.navOpen, R.string.navClose)
+        drawerLayout.addDrawerListener(actionBarDrawerToggle)
+        actionBarDrawerToggle.syncState()
 
         val syncSetting = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)
             ?: throw NullPointerException("Last sync not present in database")
 
-        if(syncSetting.value != null) {
-           synchronizationTextView.text = syncSetting.value
+        if (syncSetting.value != null) {
+            synchronizationTextView.text = syncSetting.value
         }
 
+
         synchronizationButton.setOnClickListener {
-            @Suppress("DEPRECATION")
-            SynchronizationTask().execute()
+            synchronizationButton.isEnabled = false
+            progressBar.progress = 0
+            synchronize()
         }
     }
 
-    @Suppress("DEPRECATION")
-    private inner class SynchronizationTask : AsyncTask<Void, Int, Boolean>() {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
-        override fun doInBackground(vararg p0: Void?): Boolean {
-           // val username = Setting.findOne(DatabaseSchema.Settings.KEY_USERNAME)?.value
-            val username = "NecesDaSeIgras"
+    private fun updateProgress(value: Int) {
+        runOnUiThread {
+            progressBar.progress = value
+        }
+    }
+
+    private fun makeToast(message: String) {
+        runOnUiThread {
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun synchronize() {
+        val executor = Executors.newSingleThreadExecutor()
+
+        executor.execute {
+            val username = Setting.findOne(DatabaseSchema.Settings.KEY_USERNAME)?.value
 
             try {
-                val url = URL("https://boardgamegeek.com/xmlapi2/collection?username=${username}&stats=1")
+                val url =
+                    URL("https://boardgamegeek.com/xmlapi2/collection?username=${username}&stats=1")
                 var connection = url.openConnection() as HttpURLConnection
 
-                while(connection.responseCode == 202 || connection.responseCode == 429) {
+                while (connection.responseCode == 202 || connection.responseCode == 429) {
                     Log.e(TAG, "Status code: ${connection.responseCode}")
+                    updateProgress(0)
                     connection.disconnect()
-                    Thread.sleep(10000)
+
+                    makeToast("You are in queue. Please wait.")
+
+                    for (i in 1..15) {
+                        Thread.sleep(1000)
+                        updateProgress(i * 5)
+                    }
+
                     connection = url.openConnection() as HttpURLConnection
                 }
 
+                updateProgress(75)
+
+                var games: List<Game>
                 connection.inputStream.use {
-                    val games = XmlParser.parseUserCollection(it)
-                    Log.e(TAG, games.toString())
+                    games = XmlParser.parseUserCollection(it)
                 }
+
+                Game.deleteAll()
+                Game.insertMany(games)
+
+                val date = Calendar.getInstance().time
+                val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.ENGLISH)
+                val formattedDate = formatter.format(date)
+
+                Setting.insertOrUpdateOne(Setting(DatabaseSchema.Settings.KEY_SYNCHRONIZATION, formattedDate))
+                runOnUiThread {
+                    synchronizationTextView.text = formattedDate
+                }
+
+                updateProgress(100)
+                Log.e(TAG, "Games Size: ${games.size}")
 
             } catch (exception: Exception) {
                 Log.e(TAG, exception.printStackTrace().toString())
-                return false
+                updateProgress(0)
+                makeToast("Error. Make sure you have internet connection.")
+            } finally {
+                runOnUiThread {
+                    synchronizationButton.isEnabled = true
+                }
             }
 
-            return true
         }
 
-        override fun onProgressUpdate(vararg values: Int?) {
-            super.onProgressUpdate(*values)
-            debugTextView.text = values[0].toString()
-        }
-
-        override fun onPostExecute(result: Boolean?) {
-            super.onPostExecute(result)
-        }
     }
 }
+
+

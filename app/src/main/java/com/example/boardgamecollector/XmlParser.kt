@@ -44,7 +44,7 @@ class XmlParser {
                }
             }
 
-            return games
+            return games.distinctBy { it.id }
         }
 
         private fun parseGame(parser: XmlPullParser): Game {

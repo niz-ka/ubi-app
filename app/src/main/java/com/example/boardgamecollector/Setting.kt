@@ -34,15 +34,28 @@ class Setting(
                 return null
             }
 
-            val settingKey = cursor.getString(0)
-            val settingValue = cursor.getString(1)
+            val keyColumn = cursor.getColumnIndex(DatabaseSchema.Settings.COLUMN_NAME_KEY)
+            val valueColumn = cursor.getColumnIndex(DatabaseSchema.Settings.COLUMN_NAME_VALUE)
+
+            val settingKey = cursor.getString(keyColumn)
+            val settingValue = cursor.getString(valueColumn)
             val setting = Setting(settingKey, settingValue)
 
             cursor.close()
             return setting
         }
 
-        fun insertOne(setting: Setting): Long {
+        fun deleteOne(key: String): Int {
+            val db = DatabaseHelper.db.writableDatabase
+            return db.delete(
+                DatabaseSchema.Settings.TABLE_NAME,
+                "${DatabaseSchema.Settings.COLUMN_NAME_KEY} = ?",
+                arrayOf(key)
+            )
+        }
+
+        fun insertOrUpdateOne(setting: Setting): Long {
+            deleteOne(setting.key)
             val db = DatabaseHelper.db.writableDatabase
             val values = ContentValues()
             values.put(DatabaseSchema.Settings.COLUMN_NAME_KEY, setting.key)
