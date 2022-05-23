@@ -20,7 +20,7 @@ import java.util.*
 import java.util.concurrent.Executors
 
 
-class SynchronizationActivity : AppCompatActivity() {
+class SynchronizationActivity : NavigationActivity() {
     companion object {
         private const val TAG = "SynchronizationActivity"
     }
@@ -28,12 +28,12 @@ class SynchronizationActivity : AppCompatActivity() {
     private lateinit var synchronizationTextView: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var synchronizationButton: Button
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_synchronization)
+        create()
+
         Log.i(TAG, "Creating Activity")
         supportActionBar?.title = getString(R.string.synchronization)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -41,11 +41,6 @@ class SynchronizationActivity : AppCompatActivity() {
         synchronizationTextView = findViewById(R.id.synchronizationTextView)
         progressBar = findViewById(R.id.progressBar)
         synchronizationButton = findViewById(R.id.synchronizationButton)
-        drawerLayout = findViewById(R.id.drawerLayout)
-
-        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.navOpen, R.string.navClose)
-        drawerLayout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
 
         val syncSetting = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)
             ?: throw NullPointerException("Last sync not present in database")
@@ -60,13 +55,6 @@ class SynchronizationActivity : AppCompatActivity() {
             progressBar.progress = 0
             synchronize()
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun updateProgress(value: Int) {

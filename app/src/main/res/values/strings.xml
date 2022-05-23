@@ -10,4 +10,7 @@
     <string name="navOpen">Open</string>
     <string name="navClose">Close</string>
     <string name="boardGames">Board Games</string>
+    <string name="title">Title</string>
+    <string name="rank">Rank</string>
+    <string name="year">Year</string>
 </resources>
