@@ -1,37 +1,42 @@
 package com.example.boardgamecollector
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Log
 import android.util.Xml
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
+import java.lang.Exception
+import java.net.HttpURLConnection
+import java.net.URL
 
-class XmlParser {
+class XmlParser(inputStream: InputStream) {
+
+    private val ns: String? = null
+    private val parser: XmlPullParser = Xml.newPullParser()
+
+    init {
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+        parser.setInput(inputStream, null)
+    }
+
     companion object {
-        private val ns: String? = null
+        private const val TAG = "XmlParser"
+    }
 
-        private fun setParser(inputStream: InputStream): XmlPullParser {
-            val parser: XmlPullParser = Xml.newPullParser()
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-            parser.setInput(inputStream, null)
-            return parser
-        }
+    private inner class GameTextModel(
+        val id: String,
+        var title: String?,
+        var year: String?,
+        var rank: String?,
+        var image: String?,
+    )
 
-        fun countTags(inputStream: InputStream): Int {
-            val parser = setParser(inputStream)
-            var count = 0
-            while (parser.next() != XmlPullParser.END_DOCUMENT) {
-                if (parser.eventType == XmlPullParser.START_TAG)
-                    ++count
-            }
-            return count
-        }
-
-        fun parseUserCollection(inputStream: InputStream): List<Game> {
-            val parser = setParser(inputStream)
+    fun parseUserCollection(): List<Game> {
             parser.nextTag()
             parser.require(XmlPullParser.START_TAG, ns, "items")
 
-            val gamesCount = parser.getAttributeValue(ns, "totalitems")
-            val games = mutableListOf<Game>()
+            val gamesText = mutableListOf<GameTextModel>()
 
             while (parser.next() != XmlPullParser.END_DOCUMENT) {
                if(
@@ -39,23 +44,49 @@ class XmlParser {
                    && parser.name == "item"
                    && parser.getAttributeValue(ns, "subtype") == "boardgame"
                ) {
-                   val game = parseGame(parser)
-                   games.add(game)
+                   val game = parseGame()
+                   gamesText.add(game)
                }
             }
 
-            return games.distinctBy { it.id }
+            val distinct = gamesText.distinctBy { it.id }
+            return convert(distinct)
         }
 
-        private fun parseGame(parser: XmlPullParser): Game {
+        private fun convert(gamesText: List<GameTextModel>): List<Game> {
+            val games = mutableListOf<Game>()
+
+            for(game in gamesText) {
+                val id = game.id.toLong()
+                val title = game.title
+                val year = game.year?.toInt()
+                val rank = game.rank?.toInt()
+
+                var image: Bitmap? = null
+                if(game.image != null) {
+                    try {
+                        val url = URL(game.image)
+                        val connection = url.openConnection() as HttpURLConnection
+
+                        connection.inputStream.use {
+                            image = BitmapFactory.decodeStream(it)
+                        }
+                    } catch(exception: Exception) {
+                        Log.e(TAG, exception.toString())
+                    }
+                }
+
+                games.add(Game(id, title, year, rank, image, Game.Type.BOARD_GAME))
+            }
+
+            return games
+        }
+
+        private fun parseGame(): GameTextModel {
             parser.require(XmlPullParser.START_TAG, ns, "item")
 
-            val id: Long = parser.getAttributeValue(ns, "objectid").toLong()
-            var title: String? = null
-            var year: Int? = null
-            var rank: Int? = null
-            var image: String? = null
-            val type: Game.Type = Game.Type.BOARD_GAME
+            val id = parser.getAttributeValue(ns, "objectid")
+            val gameText = GameTextModel(id, null, null, null, null)
 
             while(parser.next() != XmlPullParser.END_TAG || parser.name != "item") {
                 // Name -> title
@@ -63,7 +94,7 @@ class XmlParser {
                     parser.require(XmlPullParser.START_TAG, ns, "name")
                     while(true)
                         if(parser.next() == XmlPullParser.TEXT) break
-                    title = parser.text
+                    gameText.title = parser.text
                 }
 
                 // yearpublished -> year
@@ -71,7 +102,7 @@ class XmlParser {
                     parser.require(XmlPullParser.START_TAG, ns, "yearpublished")
                     while(true)
                         if(parser.next() == XmlPullParser.TEXT) break
-                    year = parser.text.toInt()
+                    gameText.year = parser.text
                 }
 
                 // thumbnail -> image
@@ -79,7 +110,7 @@ class XmlParser {
                     parser.require(XmlPullParser.START_TAG, ns, "thumbnail")
                     while(true)
                         if(parser.next() == XmlPullParser.TEXT) break
-                    image = parser.text
+                    gameText.image = parser.text
                 }
 
                 // rank
@@ -87,12 +118,11 @@ class XmlParser {
                     parser.require(XmlPullParser.START_TAG, ns, "rank")
                     val value = parser.getAttributeValue(ns, "value")
                     if(value != null && value.lowercase() != "not ranked")
-                        rank = value.toInt()
+                        gameText.rank = value
                 }
 
             }
             parser.require(XmlPullParser.END_TAG, ns, "item")
-            return Game(id, title, year, rank, image, type)
+            return gameText
         }
-    }
 }

@@ -16,7 +16,7 @@ object DatabaseSchema {
         const val COLUMN_NAME_TITLE = "title" // TEXT
         const val COLUMN_NAME_YEAR = "year" // INTEGER
         const val COLUMN_NAME_RANK = "rank" // INTEGER
-        const val COLUMN_NAME_IMAGE = "image" // TEXT
+        const val COLUMN_NAME_IMAGE = "image" // BLOB
         const val COLUMN_NAME_TYPE = "type" // TEXT NOT NULL
     }
 

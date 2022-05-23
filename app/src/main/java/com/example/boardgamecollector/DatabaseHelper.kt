@@ -29,7 +29,7 @@ class DatabaseHelper(context: Context):
                         "${DatabaseSchema.Games.COLUMN_NAME_TITLE} TEXT," +
                         "${DatabaseSchema.Games.COLUMN_NAME_YEAR} INTEGER," +
                         "${DatabaseSchema.Games.COLUMN_NAME_RANK} INTEGER," +
-                        "${DatabaseSchema.Games.COLUMN_NAME_IMAGE} TEXT," +
+                        "${DatabaseSchema.Games.COLUMN_NAME_IMAGE} BLOB," +
                         "${DatabaseSchema.Games.COLUMN_NAME_TYPE} TEXT NOT NULL)")
 
             private const val SQL_DELETE_GAMES = "DROP TABLE IF EXISTS ${DatabaseSchema.Games.TABLE_NAME}"

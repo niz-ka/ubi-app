@@ -1,15 +1,19 @@
 package com.example.boardgamecollector
 
 import android.content.ContentValues
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.core.database.getBlobOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
+import java.io.ByteArrayOutputStream
 
 class Game(
     val id: Long,
     val title: String?,
     val year: Int?,
     val rank: Int?,
-    val image: String?,
+    val image: Bitmap?,
     val type: Type
 ) {
 
@@ -24,13 +28,22 @@ class Game(
 
     companion object {
         fun insertOne(game: Game): Long {
+
+            var image: ByteArray? = null
+
+            if(game.image != null) {
+                val imageStream = ByteArrayOutputStream()
+                game.image.compress(Bitmap.CompressFormat.JPEG, 95, imageStream)
+                image = imageStream.toByteArray()
+            }
+
             val db = DatabaseHelper.db.writableDatabase
             val values = ContentValues()
             values.put(DatabaseSchema.Games.COLUMN_NAME_ID, game.id)
             values.put(DatabaseSchema.Games.COLUMN_NAME_TITLE, game.title)
             values.put(DatabaseSchema.Games.COLUMN_NAME_YEAR, game.year)
             values.put(DatabaseSchema.Games.COLUMN_NAME_RANK, game.rank)
-            values.put(DatabaseSchema.Games.COLUMN_NAME_IMAGE, game.image)
+            values.put(DatabaseSchema.Games.COLUMN_NAME_IMAGE, image)
             values.put(DatabaseSchema.Games.COLUMN_NAME_TYPE, game.type.toString())
             return db.insert(DatabaseSchema.Games.TABLE_NAME, null, values)
         }
@@ -89,7 +102,13 @@ class Game(
                     val title = getStringOrNull(titleColumn)
                     val rank = getIntOrNull(rankColumn)
                     val type = getString(typeColumn)
-                    val image = getStringOrNull(imageColumn)
+
+                    val imageBytes = getBlobOrNull(imageColumn)
+                    var image: Bitmap? = null
+
+                    if(imageBytes != null)
+                        image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+
                     val year = getIntOrNull(yearColumn)
                     games.add(Game(id, title, year, rank, image, Type.valueOf(type)))
                 }

@@ -32,7 +32,7 @@ abstract class NavigationActivity : AppCompatActivity() {
             when(it.itemId) {
                 R.id.boardGamesLink -> {
                     val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                    intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
                     startActivity(intent)
                 }
                 R.id.synchronizationLink -> {

@@ -32,6 +32,7 @@ class BoardGamesAdapter(
         holder.titleTextView.text = games[position].title
         holder.yearTextView.text = games[position].year.toString()
         holder.rankTextView.text = games[position].rank.toString()
+        holder.imageView.setImageBitmap(games[position].image)
     }
 
     override fun getItemCount(): Int {

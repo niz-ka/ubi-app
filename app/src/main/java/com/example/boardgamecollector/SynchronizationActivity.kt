@@ -99,7 +99,7 @@ class SynchronizationActivity : NavigationActivity() {
 
                 var games: List<Game>
                 connection.inputStream.use {
-                    games = XmlParser.parseUserCollection(it)
+                    games = XmlParser(it).parseUserCollection()
                 }
 
                 Game.deleteAll()
