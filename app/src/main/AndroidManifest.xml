@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BoardGameCollector">
         <activity
+            android:name=".BoardGameExpansionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BoardGamesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BoardGameRankActivity"
+            android:exported="false" />
+        <activity
             android:name=".SynchronizationActivity"
             android:exported="false" />
         <activity

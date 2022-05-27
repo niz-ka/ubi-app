@@ -14,12 +14,12 @@ class Game(
     val year: Int?,
     val rank: Int?,
     val image: Bitmap?,
-    val type: Type
+    var type: Type
 ) {
 
-    enum class Type(name: String) {
-        BOARD_GAME("board_game"),
-        BOARD_EXPANSION("board_expansion")
+    enum class Type {
+        BOARD_GAME,
+        BOARD_EXPANSION
     }
 
     override fun toString(): String {
@@ -31,7 +31,7 @@ class Game(
 
             var image: ByteArray? = null
 
-            if(game.image != null) {
+            if (game.image != null) {
                 val imageStream = ByteArrayOutputStream()
                 game.image.compress(Bitmap.CompressFormat.JPEG, 95, imageStream)
                 image = imageStream.toByteArray()
@@ -64,7 +64,7 @@ class Game(
             )
         }
 
-        fun findAll(): List<Game> {
+        fun findAll(gameType: Type): List<Game> {
             val db = DatabaseHelper.db.readableDatabase
             val games = mutableListOf<Game>()
 
@@ -77,12 +77,14 @@ class Game(
                 DatabaseSchema.Games.COLUMN_NAME_YEAR
             )
 
+            val selection = "${DatabaseSchema.Games.COLUMN_NAME_TYPE} = ?"
+            val selectionArgs = arrayOf(gameType.toString())
 
             val cursor = db.query(
                 DatabaseSchema.Games.TABLE_NAME,
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 null
@@ -106,15 +108,16 @@ class Game(
                     val imageBytes = getBlobOrNull(imageColumn)
                     var image: Bitmap? = null
 
-                    if(imageBytes != null)
+                    if (imageBytes != null)
                         image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
 
                     val year = getIntOrNull(yearColumn)
                     games.add(Game(id, title, year, rank, image, Type.valueOf(type)))
                 }
+
+                close()
             }
 
-            cursor.close()
             return games
         }
     }

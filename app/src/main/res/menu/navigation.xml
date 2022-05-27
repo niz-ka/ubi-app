@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/boardGamesLink"
-        android:title="@string/boardGames"
-        android:icon="@drawable/ic_baseline_dashboard_24"
-        />
+        android:id="@+id/homeLink"
+        android:icon="@drawable/ic_baseline_home_24"
+        android:title="@string/home" />
+
+
+    <group android:id="@+id/group1">
+        <item
+            android:id="@+id/boardGamesLink"
+            android:icon="@drawable/ic_baseline_dashboard_24"
+            android:title="@string/boardGames" />
+
+        <item
+            android:id="@+id/boardGameExpansionsLink"
+            android:icon="@drawable/ic_baseline_extension_24"
+            android:title="@string/boardGameExpansions" />
+    </group>
 
     <item
         android:id="@+id/synchronizationLink"
-        android:title="@string/synchronization"
         android:icon="@drawable/ic_baseline_sync_24"
-        />
+        android:title="@string/synchronization" />
 </menu>

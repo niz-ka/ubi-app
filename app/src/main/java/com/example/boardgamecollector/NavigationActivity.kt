@@ -24,20 +24,35 @@ abstract class NavigationActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navView)
 
-        actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.navOpen, R.string.navClose)
+        actionBarDrawerToggle =
+            ActionBarDrawerToggle(this, drawerLayout, R.string.navOpen, R.string.navClose)
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
 
         navigationView.setNavigationItemSelectedListener {
-            when(it.itemId) {
-                R.id.boardGamesLink -> {
+            when (it.itemId) {
+                R.id.homeLink -> {
                     val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                     startActivity(intent)
                 }
+
+                R.id.boardGamesLink -> {
+                    val intent = Intent(this, BoardGamesActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(intent)
+                }
+
+                R.id.boardGameExpansionsLink -> {
+                    val intent = Intent(this, BoardGameExpansionsActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    startActivity(intent)
+                }
+
+
                 R.id.synchronizationLink -> {
                     val intent = Intent(this, SynchronizationActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                     startActivity(intent)
                 }
 

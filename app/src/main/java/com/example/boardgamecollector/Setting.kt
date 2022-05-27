@@ -5,8 +5,7 @@ import android.content.ContentValues
 class Setting(
     val key: String,
     val value: String?,
-    ) {
-
+) {
 
 
     companion object {
@@ -29,7 +28,7 @@ class Setting(
                 null
             )
 
-            if(!cursor.moveToFirst()) {
+            if (!cursor.moveToFirst()) {
                 cursor.close()
                 return null
             }

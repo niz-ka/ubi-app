@@ -1,18 +1,12 @@
 package com.example.boardgamecollector
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.MenuItem
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.drawerlayout.widget.DrawerLayout
-import java.lang.Exception
-import java.lang.NullPointerException
+import org.xmlpull.v1.XmlPullParser
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -69,6 +63,28 @@ class SynchronizationActivity : NavigationActivity() {
         }
     }
 
+    private fun connect(url: String): HttpURLConnection {
+        val requestedUrl = URL(url)
+        var connection = requestedUrl.openConnection() as HttpURLConnection
+
+        while (connection.responseCode == 202 || connection.responseCode == 429) {
+            Log.e(TAG, "Status code: ${connection.responseCode}")
+            updateProgress(0)
+            connection.disconnect()
+
+            makeToast("You are in queue. Please wait.")
+
+            for (i in 1..15) {
+                Thread.sleep(1000)
+                updateProgress(i * 5)
+            }
+
+            connection = requestedUrl.openConnection() as HttpURLConnection
+        }
+
+        return connection
+    }
+
     private fun synchronize() {
         val executor = Executors.newSingleThreadExecutor()
 
@@ -76,46 +92,55 @@ class SynchronizationActivity : NavigationActivity() {
             val username = Setting.findOne(DatabaseSchema.Settings.KEY_USERNAME)?.value
 
             try {
-                val url =
-                    URL("https://boardgamegeek.com/xmlapi2/collection?username=${username}&stats=1")
-                var connection = url.openConnection() as HttpURLConnection
-
-                while (connection.responseCode == 202 || connection.responseCode == 429) {
-                    Log.e(TAG, "Status code: ${connection.responseCode}")
-                    updateProgress(0)
-                    connection.disconnect()
-
-                    makeToast("You are in queue. Please wait.")
-
-                    for (i in 1..15) {
-                        Thread.sleep(1000)
-                        updateProgress(i * 5)
-                    }
-
-                    connection = url.openConnection() as HttpURLConnection
-                }
+                var connection =
+                    connect("https://boardgamegeek.com/xmlapi2/collection?username=${username}&stats=1")
 
                 updateProgress(75)
 
-                var games: List<Game>
+                var allGames: List<Game>
                 connection.inputStream.use {
-                    games = XmlParser(it).parseUserCollection()
+                    allGames = XmlParser(it).parseUserCollection()
                 }
 
+                Log.d(TAG, "All games size: ${allGames.size}")
+
+                connection =
+                    connect("https://boardgamegeek.com/xmlapi2/collection?username=${username}&subtype=boardgameexpansion")
+
+                var expansionIds: List<Long>
+                connection.inputStream.use {
+                    expansionIds = XmlParser(it).getExpansionIds()
+                }
+
+                var expansionCounter = 0
+
+                for (game in allGames) {
+                    if (game.id in expansionIds) {
+                        game.type = Game.Type.BOARD_EXPANSION
+                        ++expansionCounter
+                    }
+                }
+
+                Log.d(TAG, "Expansions size: $expansionCounter")
+
                 Game.deleteAll()
-                Game.insertMany(games)
+                Game.insertMany(allGames)
 
                 val date = Calendar.getInstance().time
                 val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.ENGLISH)
                 val formattedDate = formatter.format(date)
 
-                Setting.insertOrUpdateOne(Setting(DatabaseSchema.Settings.KEY_SYNCHRONIZATION, formattedDate))
+                Setting.insertOrUpdateOne(
+                    Setting(
+                        DatabaseSchema.Settings.KEY_SYNCHRONIZATION,
+                        formattedDate
+                    )
+                )
                 runOnUiThread {
                     synchronizationTextView.text = formattedDate
                 }
 
                 updateProgress(100)
-                Log.e(TAG, "Games Size: ${games.size}")
 
             } catch (exception: Exception) {
                 Log.e(TAG, exception.printStackTrace().toString())

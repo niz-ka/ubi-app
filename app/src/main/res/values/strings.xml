@@ -13,4 +13,6 @@
     <string name="title">Title</string>
     <string name="rank">Rank</string>
     <string name="year">Year</string>
+    <string name="boardGameExpansions">Board Game Expansions</string>
+    <string name="home">Home</string>
 </resources>

@@ -22,8 +22,8 @@ object DatabaseSchema {
 
     object Ranks {
         const val TABLE_NAME = "ranks"
-        const val COLUMN_NAME_ID = "id" // INTEGER PRIMARY KEY
+        const val COLUMN_NAME_ID = "id" // FOREIGN KEY NOT NULL
         const val COLUMN_NAME_DATE = "date" // TEXT NOT NULL
-        const val COLUMN_NAME_RANK = "rank" // INTEGER NOT NULL
+        const val COLUMN_NAME_RANK = "rank" // INTEGER
     }
 }
