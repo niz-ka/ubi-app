@@ -15,4 +15,8 @@
     <string name="year">Year</string>
     <string name="boardGameExpansions">Board Game Expansions</string>
     <string name="home">Home</string>
+    <string name="rankHistory">Rank History</string>
+    <string name="noData">Not enough data - %1$s point(s)</string>
+    <string name="gameImage">Game Image</string>
+    <string name="userHello">Hello, %1$s!</string>
 </resources>

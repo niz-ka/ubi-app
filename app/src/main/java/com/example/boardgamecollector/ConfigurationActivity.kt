@@ -30,6 +30,9 @@ class ConfigurationActivity : AppCompatActivity() {
 
             Setting.insertOrUpdateOne(Setting(DatabaseSchema.Settings.KEY_USERNAME, username))
             Setting.insertOrUpdateOne(Setting(DatabaseSchema.Settings.KEY_SYNCHRONIZATION, null))
+            Setting.insertOrUpdateOne(Setting(DatabaseSchema.Settings.KEY_GAMES_NUMBER, null))
+            Setting.insertOrUpdateOne(Setting(DatabaseSchema.Settings.KEY_EXPANSIONS_NUMBER, null))
+
             Log.i(TAG, "Database created")
 
             val intent = Intent(this, SynchronizationActivity::class.java)

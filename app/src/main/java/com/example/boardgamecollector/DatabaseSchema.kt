@@ -8,6 +8,8 @@ object DatabaseSchema {
 
         const val KEY_USERNAME = "username"
         const val KEY_SYNCHRONIZATION = "synchronization"
+        const val KEY_GAMES_NUMBER = "games_number"
+        const val KEY_EXPANSIONS_NUMBER = "expansions_number"
     }
 
     object Games {
@@ -22,8 +24,8 @@ object DatabaseSchema {
 
     object Ranks {
         const val TABLE_NAME = "ranks"
-        const val COLUMN_NAME_ID = "id" // FOREIGN KEY NOT NULL
+        const val COLUMN_NAME_ID = "id" // INTEGER NOT NULL
         const val COLUMN_NAME_DATE = "date" // TEXT NOT NULL
-        const val COLUMN_NAME_RANK = "rank" // INTEGER
+        const val COLUMN_NAME_RANK = "rank" // INTEGER NOT NULL
     }
 }

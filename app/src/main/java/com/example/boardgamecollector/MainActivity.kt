@@ -1,13 +1,22 @@
 package com.example.boardgamecollector
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.TextView
 
 class MainActivity : NavigationActivity() {
     companion object {
         private const val TAG = "MainActivity"
     }
+
+    private lateinit var gamesNumberTextView: TextView
+    private lateinit var expansionsNumberTextView: TextView
+    private lateinit var lastSyncTextView: TextView
+    private lateinit var userHelloTextView: TextView
+    private lateinit var clearDataButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +34,44 @@ class MainActivity : NavigationActivity() {
             finish()
             return
         }
+
+        gamesNumberTextView = findViewById(R.id.gamesNumber)
+        expansionsNumberTextView = findViewById(R.id.expansionsNumber)
+        lastSyncTextView = findViewById(R.id.lastSync)
+        userHelloTextView = findViewById(R.id.userHello)
+        clearDataButton = findViewById(R.id.clearDataButton)
+
+        val gamesNumber = Setting.findOne(DatabaseSchema.Settings.KEY_GAMES_NUMBER)?.value
+        val username = Setting.findOne(DatabaseSchema.Settings.KEY_USERNAME)?.value
+        val expansionsNumber = Setting.findOne(DatabaseSchema.Settings.KEY_EXPANSIONS_NUMBER)?.value
+        val lastSync = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)?.value
+
+        gamesNumberTextView.text = (gamesNumber ?: "0").toString()
+        expansionsNumberTextView.text = (expansionsNumber ?: "0").toString()
+        lastSyncTextView.text = (lastSync ?: "-").toString()
+        userHelloTextView.text = getString(R.string.userHello, username ?: "Stranger")
+
+        clearDataButton.setOnClickListener {
+            showAlertDialog()
+        }
+    }
+
+    private fun showAlertDialog() {
+
+        AlertDialog.Builder(this)
+            .setTitle("Clear data")
+            .setMessage("Are you sure? This operation will remove all data from database!")
+            .setPositiveButton("Yes") { _, _ ->
+                DatabaseHelper.db.close()
+                this.deleteDatabase(DatabaseHelper.DATABASE_NAME)
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
+            .setNegativeButton("No", null)
+            .setIcon(R.drawable.ic_baseline_warning_24)
+            .show()
     }
 
 }

@@ -64,6 +64,62 @@ class Game(
             )
         }
 
+        fun findOne(gameId: Long): Game? {
+            val db = DatabaseHelper.db.readableDatabase
+
+            val projection = arrayOf(
+                DatabaseSchema.Games.COLUMN_NAME_ID,
+                DatabaseSchema.Games.COLUMN_NAME_TITLE,
+                DatabaseSchema.Games.COLUMN_NAME_RANK,
+                DatabaseSchema.Games.COLUMN_NAME_TYPE,
+                DatabaseSchema.Games.COLUMN_NAME_IMAGE,
+                DatabaseSchema.Games.COLUMN_NAME_YEAR
+            )
+
+            val selection = "${DatabaseSchema.Games.COLUMN_NAME_ID} = ?"
+            val selectionArgs = arrayOf(gameId.toString())
+
+            val cursor = db.query(
+                DatabaseSchema.Games.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+            )
+
+            with(cursor) {
+                val idColumn = cursor.getColumnIndex(DatabaseSchema.Games.COLUMN_NAME_ID)
+                val titleColumn = cursor.getColumnIndex(DatabaseSchema.Games.COLUMN_NAME_TITLE)
+                val rankColumn = cursor.getColumnIndex(DatabaseSchema.Games.COLUMN_NAME_RANK)
+                val typeColumn = cursor.getColumnIndex(DatabaseSchema.Games.COLUMN_NAME_TYPE)
+                val imageColumn = cursor.getColumnIndex(DatabaseSchema.Games.COLUMN_NAME_IMAGE)
+                val yearColumn = cursor.getColumnIndex(DatabaseSchema.Games.COLUMN_NAME_YEAR)
+
+                if (!moveToFirst()) {
+                    close()
+                    return null
+                }
+
+                val id = getLong(idColumn)
+                val title = getStringOrNull(titleColumn)
+                val rank = getIntOrNull(rankColumn)
+                val type = getString(typeColumn)
+
+                val imageBytes = getBlobOrNull(imageColumn)
+                var image: Bitmap? = null
+
+                if (imageBytes != null)
+                    image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+
+                val year = getIntOrNull(yearColumn)
+
+                close()
+                return Game(id, title, year, rank, image, Type.valueOf(type))
+            }
+        }
+
         fun findAll(gameType: Type): List<Game> {
             val db = DatabaseHelper.db.readableDatabase
             val games = mutableListOf<Game>()

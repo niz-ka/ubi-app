@@ -6,7 +6,6 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
-import org.xmlpull.v1.XmlPullParser
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -17,6 +16,7 @@ import java.util.concurrent.Executors
 class SynchronizationActivity : NavigationActivity() {
     companion object {
         private const val TAG = "SynchronizationActivity"
+        private val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.ENGLISH)
     }
 
     private lateinit var synchronizationTextView: TextView
@@ -123,11 +123,19 @@ class SynchronizationActivity : NavigationActivity() {
 
                 Log.d(TAG, "Expansions size: $expansionCounter")
 
+                val lastSync = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)?.value
+                if(lastSync != null) {
+                    val prevGames = Game.findAll(Game.Type.BOARD_GAME).filter { it.rank != null }
+                    val ranks = prevGames.map {
+                        Rank(it.id, formatter.parse(lastSync), it.rank)
+                    }
+                    Rank.insertMany(ranks)
+                }
+
                 Game.deleteAll()
                 Game.insertMany(allGames)
 
                 val date = Calendar.getInstance().time
-                val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.ENGLISH)
                 val formattedDate = formatter.format(date)
 
                 Setting.insertOrUpdateOne(
@@ -136,6 +144,22 @@ class SynchronizationActivity : NavigationActivity() {
                         formattedDate
                     )
                 )
+
+                Setting.insertOrUpdateOne(
+                    Setting(
+                        DatabaseSchema.Settings.KEY_GAMES_NUMBER,
+                        (allGames.size - expansionCounter).toString()
+                    )
+                )
+
+                Setting.insertOrUpdateOne(
+                    Setting(
+                        DatabaseSchema.Settings.KEY_EXPANSIONS_NUMBER,
+                        expansionCounter.toString()
+                    )
+                )
+
+
                 runOnUiThread {
                     synchronizationTextView.text = formattedDate
                 }

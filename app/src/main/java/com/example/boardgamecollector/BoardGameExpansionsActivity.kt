@@ -1,11 +1,15 @@
 package com.example.boardgamecollector
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +23,8 @@ class BoardGameExpansionsActivity : NavigationActivity(){
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressCircle: ProgressBar
+    private lateinit var adapter: BoardGamesAdapter
+    private val games = mutableListOf<Game>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,31 +37,44 @@ class BoardGameExpansionsActivity : NavigationActivity(){
         recyclerView = findViewById(R.id.gamesRecyclerView)
         progressCircle = findViewById(R.id.progressCircle)
 
-        val adapter = BoardGamesAdapter(this, listOf(), onClick)
+        adapter = BoardGamesAdapter(this, games) { }
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         makeRecyclerView()
     }
 
-    private val onClick: (game: Game) -> Unit = {
-        val intent = Intent(this, BoardGameRankActivity::class.java)
-        intent.putExtra("id", it.id)
-        startActivity(intent)
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     private fun makeRecyclerView() {
         val executor = Executors.newSingleThreadExecutor()
         val handler = Handler(Looper.getMainLooper())
 
         executor.execute {
-            val games = Game.findAll(Game.Type.BOARD_EXPANSION)
+            games.addAll(Game.findAll(Game.Type.BOARD_EXPANSION))
             handler.post {
                 progressCircle.visibility = View.INVISIBLE
-                val adapter = BoardGamesAdapter(this, games, onClick)
-                recyclerView.adapter = adapter
+                games.sortWith(compareBy(nullsLast()) { it.title })
+                adapter.notifyDataSetChanged()
             }
         }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = MenuInflater(this)
+        inflater.inflate(R.menu.sort_menu_expansion, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.titleAsc -> games.sortWith(compareBy(nullsLast()) { it.title })
+            R.id.titleDesc -> games.sortWith(compareByDescending(nullsFirst()) { it.title })
+            R.id.yearAsc -> games.sortWith(compareBy(nullsLast()) { it.year })
+            R.id.yearDesc -> games.sortWith(compareByDescending(nullsFirst()) { it.year })
+        }
+        adapter.notifyDataSetChanged()
+        return super.onOptionsItemSelected(item)
     }
 }

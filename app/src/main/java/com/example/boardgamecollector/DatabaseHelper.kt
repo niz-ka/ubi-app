@@ -39,9 +39,7 @@ class DatabaseHelper(context: Context) :
             ("CREATE TABLE ${DatabaseSchema.Ranks.TABLE_NAME} (" +
                     "${DatabaseSchema.Ranks.COLUMN_NAME_ID} INTEGER NOT NULL," +
                     "${DatabaseSchema.Ranks.COLUMN_NAME_DATE} TEXT NOT NULL," +
-                    "${DatabaseSchema.Ranks.COLUMN_NAME_RANK} INTEGER," +
-                    "FOREIGN KEY(${DatabaseSchema.Ranks.COLUMN_NAME_ID}) " +
-                    "REFERENCES ${DatabaseSchema.Games.TABLE_NAME}(${DatabaseSchema.Games.COLUMN_NAME_ID}))")
+                    "${DatabaseSchema.Ranks.COLUMN_NAME_RANK} INTEGER NOT NULL)")
 
         private const val SQL_DELETE_RANKS =
             "DROP TABLE IF EXISTS ${DatabaseSchema.Ranks.TABLE_NAME}"
