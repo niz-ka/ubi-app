@@ -132,7 +132,7 @@ class SynchronizationActivity : NavigationActivity() {
                     Rank.insertMany(ranks)
                 }
 
-                Game.deleteAll()
+               // Game.deleteAll()
                 Game.insertMany(allGames)
 
                 val date = Calendar.getInstance().time

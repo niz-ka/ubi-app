@@ -1,6 +1,7 @@
 package com.example.boardgamecollector
 
 import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.core.database.getBlobOrNull
@@ -45,7 +46,7 @@ class Game(
             values.put(DatabaseSchema.Games.COLUMN_NAME_RANK, game.rank)
             values.put(DatabaseSchema.Games.COLUMN_NAME_IMAGE, image)
             values.put(DatabaseSchema.Games.COLUMN_NAME_TYPE, game.type.toString())
-            return db.insert(DatabaseSchema.Games.TABLE_NAME, null, values)
+            return db.insertWithOnConflict(DatabaseSchema.Games.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE)
         }
 
         fun insertMany(games: List<Game>): List<Long> {
