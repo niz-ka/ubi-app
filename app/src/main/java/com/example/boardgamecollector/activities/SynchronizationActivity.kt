@@ -1,4 +1,4 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.activities
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -8,6 +8,13 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
+import com.example.boardgamecollector.R
+import com.example.boardgamecollector.classes.XmlParser
+import com.example.boardgamecollector.database.DatabaseSchema
+import com.example.boardgamecollector.models.Game
+import com.example.boardgamecollector.models.Rank
+import com.example.boardgamecollector.models.Setting
+import com.example.boardgamecollector.objects.App
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*

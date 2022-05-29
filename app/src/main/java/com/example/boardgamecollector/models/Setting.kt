@@ -1,6 +1,8 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.models
 
 import android.content.ContentValues
+import com.example.boardgamecollector.database.DatabaseHelper
+import com.example.boardgamecollector.database.DatabaseSchema
 
 class Setting(
     val key: String,

@@ -1,4 +1,4 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.objects
 
 import java.text.SimpleDateFormat
 import java.util.*

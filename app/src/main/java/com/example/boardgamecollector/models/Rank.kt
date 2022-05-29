@@ -1,8 +1,11 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.models
 
 import android.content.ContentValues
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
+import com.example.boardgamecollector.database.DatabaseHelper
+import com.example.boardgamecollector.database.DatabaseSchema
+import com.example.boardgamecollector.objects.App
 import java.util.*
 
 class Rank(

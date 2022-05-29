@@ -1,10 +1,15 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.activities
 
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import com.example.boardgamecollector.R
+import com.example.boardgamecollector.database.DatabaseHelper
+import com.example.boardgamecollector.database.DatabaseSchema
+import com.example.boardgamecollector.models.Game
+import com.example.boardgamecollector.models.Setting
 
 class MainActivity : NavigationActivity() {
 

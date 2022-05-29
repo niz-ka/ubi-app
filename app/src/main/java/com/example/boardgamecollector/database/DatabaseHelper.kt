@@ -1,4 +1,4 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.database
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase

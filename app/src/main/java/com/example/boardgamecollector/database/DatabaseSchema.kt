@@ -1,4 +1,4 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.database
 
 object DatabaseSchema {
     object Settings {

@@ -1,10 +1,13 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import com.example.boardgamecollector.R
+import com.example.boardgamecollector.database.DatabaseSchema
+import com.example.boardgamecollector.models.Setting
 
 class ConfigurationActivity : AppCompatActivity() {
     private lateinit var submitButton: Button

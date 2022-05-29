@@ -1,4 +1,4 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.boardgamecollector.R
+import com.example.boardgamecollector.models.Game
 
 class BoardGamesAdapter(
     val context: Context,

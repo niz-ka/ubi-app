@@ -1,9 +1,10 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.classes
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.util.Xml
+import com.example.boardgamecollector.models.Game
 import org.xmlpull.v1.XmlPullParser
 import java.io.InputStream
 import java.lang.Exception

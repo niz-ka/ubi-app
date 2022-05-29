@@ -12,22 +12,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar">
         <activity
-            android:name=".BoardGameExpansionsActivity"
+            android:name=".activities.BoardGameExpansionsActivity"
             android:exported="false" />
         <activity
-            android:name=".BoardGamesActivity"
+            android:name=".activities.BoardGamesActivity"
             android:exported="false" />
         <activity
-            android:name=".BoardGameRankActivity"
+            android:name=".activities.BoardGameRankActivity"
             android:exported="false" />
         <activity
-            android:name=".SynchronizationActivity"
+            android:name=".activities.SynchronizationActivity"
             android:exported="false" />
         <activity
-            android:name=".ConfigurationActivity"
+            android:name=".activities.ConfigurationActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

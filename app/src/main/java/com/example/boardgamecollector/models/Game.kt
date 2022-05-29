@@ -1,4 +1,4 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.models
 
 import android.content.ContentValues
 import android.database.DatabaseUtils
@@ -8,6 +8,9 @@ import android.graphics.BitmapFactory
 import androidx.core.database.getBlobOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
+import com.example.boardgamecollector.database.DatabaseHelper
+import com.example.boardgamecollector.database.DatabaseSchema
+import com.example.boardgamecollector.objects.App
 import java.io.ByteArrayOutputStream
 
 class Game(

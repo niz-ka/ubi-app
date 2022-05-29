@@ -1,7 +1,11 @@
-package com.example.boardgamecollector
+package com.example.boardgamecollector.activities
 
 import android.os.Bundle
 import android.widget.TextView
+import com.example.boardgamecollector.*
+import com.example.boardgamecollector.models.Game
+import com.example.boardgamecollector.models.Rank
+import com.example.boardgamecollector.objects.App
 import com.github.mikephil.charting.charts.Chart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.AxisBase
