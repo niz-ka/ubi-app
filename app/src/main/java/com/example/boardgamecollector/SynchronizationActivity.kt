@@ -2,10 +2,8 @@ package com.example.boardgamecollector
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
@@ -22,6 +20,7 @@ class SynchronizationActivity : NavigationActivity() {
     private lateinit var synchronizationTextView: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var synchronizationButton: Button
+    private lateinit var removeSwitch: SwitchCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +34,7 @@ class SynchronizationActivity : NavigationActivity() {
         synchronizationTextView = findViewById(R.id.synchronizationTextView)
         progressBar = findViewById(R.id.progressBar)
         synchronizationButton = findViewById(R.id.synchronizationButton)
+        removeSwitch = findViewById(R.id.removeSwitch)
 
         val syncSetting = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)
             ?: throw NullPointerException("Last sync not present in database")
@@ -47,7 +47,8 @@ class SynchronizationActivity : NavigationActivity() {
         synchronizationButton.setOnClickListener {
             synchronizationButton.isEnabled = false
             progressBar.progress = 0
-            synchronize()
+            val removeNonExistent = removeSwitch.isChecked
+            synchronize(removeNonExistent)
         }
     }
 
@@ -85,7 +86,7 @@ class SynchronizationActivity : NavigationActivity() {
         return connection
     }
 
-    private fun synchronize() {
+    private fun synchronize(removeNonExistent: Boolean) {
         val executor = Executors.newSingleThreadExecutor()
 
         executor.execute {
@@ -132,7 +133,8 @@ class SynchronizationActivity : NavigationActivity() {
                     Rank.insertMany(ranks)
                 }
 
-               // Game.deleteAll()
+                if(removeNonExistent)
+                    Game.deleteAll()
                 Game.insertMany(allGames)
 
                 val date = Calendar.getInstance().time
