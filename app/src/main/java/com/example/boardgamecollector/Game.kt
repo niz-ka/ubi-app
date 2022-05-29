@@ -1,6 +1,7 @@
 package com.example.boardgamecollector
 
 import android.content.ContentValues
+import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -176,6 +177,17 @@ class Game(
             }
 
             return games
+        }
+
+        fun count(type: Type?): Long {
+            val db = DatabaseHelper.db.readableDatabase
+            val table = DatabaseSchema.Games.TABLE_NAME
+            val selection = "${DatabaseSchema.Games.COLUMN_NAME_TYPE} = ?"
+            val selectionArgs = arrayOf(type.toString())
+            return if(type != null)
+                DatabaseUtils.queryNumEntries(db, table, selection, selectionArgs)
+            else
+                DatabaseUtils.queryNumEntries(db, table)
         }
     }
 

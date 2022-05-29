@@ -147,21 +147,6 @@ class SynchronizationActivity : NavigationActivity() {
                     )
                 )
 
-                Setting.insertOrUpdateOne(
-                    Setting(
-                        DatabaseSchema.Settings.KEY_GAMES_NUMBER,
-                        (allGames.size - expansionCounter).toString()
-                    )
-                )
-
-                Setting.insertOrUpdateOne(
-                    Setting(
-                        DatabaseSchema.Settings.KEY_EXPANSIONS_NUMBER,
-                        expansionCounter.toString()
-                    )
-                )
-
-
                 runOnUiThread {
                     synchronizationTextView.text = formattedDate
                 }
@@ -175,6 +160,7 @@ class SynchronizationActivity : NavigationActivity() {
             } finally {
                 runOnUiThread {
                     synchronizationButton.isEnabled = true
+                    removeSwitch.isChecked = false
                 }
             }
 

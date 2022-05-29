@@ -8,8 +8,6 @@ object DatabaseSchema {
 
         const val KEY_USERNAME = "username"
         const val KEY_SYNCHRONIZATION = "synchronization"
-        const val KEY_GAMES_NUMBER = "games_number"
-        const val KEY_EXPANSIONS_NUMBER = "expansions_number"
     }
 
     object Games {

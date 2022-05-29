@@ -41,13 +41,13 @@ class MainActivity : NavigationActivity() {
         userHelloTextView = findViewById(R.id.userHello)
         clearDataButton = findViewById(R.id.clearDataButton)
 
-        val gamesNumber = Setting.findOne(DatabaseSchema.Settings.KEY_GAMES_NUMBER)?.value
         val username = Setting.findOne(DatabaseSchema.Settings.KEY_USERNAME)?.value
-        val expansionsNumber = Setting.findOne(DatabaseSchema.Settings.KEY_EXPANSIONS_NUMBER)?.value
         val lastSync = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)?.value
+        val gamesNumber = Game.count(Game.Type.BOARD_GAME)
+        val expansionsNumber = Game.count(Game.Type.BOARD_EXPANSION)
 
-        gamesNumberTextView.text = (gamesNumber ?: "0").toString()
-        expansionsNumberTextView.text = (expansionsNumber ?: "0").toString()
+        gamesNumberTextView.text = gamesNumber.toString()
+        expansionsNumberTextView.text = expansionsNumber.toString()
         lastSyncTextView.text = (lastSync ?: "-").toString()
         userHelloTextView.text = getString(R.string.userHello, username ?: "Stranger")
 
