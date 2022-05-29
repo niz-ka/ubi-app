@@ -39,4 +39,5 @@
     <string name="yearAsc">Year Asc</string>
     <string name="yearDesc">Year Desc</string>
     <string name="syncWarning">"Do you want to synchronize? The last sync was less than 24 hours ago."</string>
+    <string name="bggUsername">BGG Username</string>
 </resources>

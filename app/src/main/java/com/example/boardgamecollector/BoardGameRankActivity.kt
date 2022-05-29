@@ -42,6 +42,7 @@ class BoardGameRankActivity : NavigationActivity() {
 
         chart.setNoDataText(getString(R.string.noData, ranks.size.toString()))
         chart.getPaint(Chart.PAINT_INFO).color = getColor(R.color.black)
+        chart.getPaint(Chart.PAINT_INFO).textSize = 40f
 
         if (ranks.size < 2) return
 
