@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -16,22 +15,16 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.Executors
 
 class BoardGamesActivity : NavigationActivity() {
-    companion object {
-        private const val TAG = "BoardGamesActivity"
-    }
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressCircle: ProgressBar
     private lateinit var adapter: BoardGamesAdapter
     private val games = mutableListOf<Game>()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board_games)
         create()
-        Log.i(TAG, "Creating activity")
-
         supportActionBar?.title = getString(R.string.boardGames)
 
         recyclerView = findViewById(R.id.gamesRecyclerView)
@@ -40,13 +33,14 @@ class BoardGamesActivity : NavigationActivity() {
         adapter = BoardGamesAdapter(this, games, onClick)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
+
         makeRecyclerView()
     }
 
     private val onClick: (game: Game) -> Unit = {
         if (it.rank != null) {
             val intent = Intent(this, BoardGameRankActivity::class.java)
-            intent.putExtra("id", it.id)
+            intent.putExtra(App.INTENT_EXTRA_ID, it.id)
             startActivity(intent)
         }
     }
@@ -76,7 +70,7 @@ class BoardGamesActivity : NavigationActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.titleAsc -> games.sortWith(compareBy(nullsLast()) { it.title })
             R.id.titleDesc -> games.sortWith(compareByDescending(nullsFirst()) { it.title })
             R.id.yearAsc -> games.sortWith(compareBy(nullsLast()) { it.year })

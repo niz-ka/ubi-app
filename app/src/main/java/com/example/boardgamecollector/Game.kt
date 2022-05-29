@@ -30,12 +30,11 @@ class Game(
 
     companion object {
         fun insertOne(game: Game): Long {
-
             var image: ByteArray? = null
 
             if (game.image != null) {
                 val imageStream = ByteArrayOutputStream()
-                game.image.compress(Bitmap.CompressFormat.JPEG, 95, imageStream)
+                game.image.compress(Bitmap.CompressFormat.JPEG, App.THUMBNAIL_QUALITY, imageStream)
                 image = imageStream.toByteArray()
             }
 
@@ -47,7 +46,12 @@ class Game(
             values.put(DatabaseSchema.Games.COLUMN_NAME_RANK, game.rank)
             values.put(DatabaseSchema.Games.COLUMN_NAME_IMAGE, image)
             values.put(DatabaseSchema.Games.COLUMN_NAME_TYPE, game.type.toString())
-            return db.insertWithOnConflict(DatabaseSchema.Games.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE)
+            return db.insertWithOnConflict(
+                DatabaseSchema.Games.TABLE_NAME,
+                null,
+                values,
+                SQLiteDatabase.CONFLICT_REPLACE
+            )
         }
 
         fun insertMany(games: List<Game>): List<Long> {
@@ -184,7 +188,7 @@ class Game(
             val table = DatabaseSchema.Games.TABLE_NAME
             val selection = "${DatabaseSchema.Games.COLUMN_NAME_TYPE} = ?"
             val selectionArgs = arrayOf(type.toString())
-            return if(type != null)
+            return if (type != null)
                 DatabaseUtils.queryNumEntries(db, table, selection, selectionArgs)
             else
                 DatabaseUtils.queryNumEntries(db, table)

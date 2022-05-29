@@ -14,7 +14,6 @@ import java.util.concurrent.Executors
 
 
 class SynchronizationActivity : NavigationActivity() {
-
     companion object {
         private const val TAG = "SynchronizationActivity"
     }
@@ -56,7 +55,7 @@ class SynchronizationActivity : NavigationActivity() {
             updateProgress(progressStart)
             connection.disconnect()
 
-            makeToast("You are in queue. Please wait.")
+            makeToast(getString(R.string.inQueue))
 
             for (i in 1..15) {
                 Thread.sleep(1000)
@@ -89,9 +88,9 @@ class SynchronizationActivity : NavigationActivity() {
                     val step = 60.0 / size
                     var growth = step
 
-                    for(i in 1..size) {
+                    for (i in 1..size) {
                         parser.nextConversion()
-                        if(15 + growth.toInt() != progress) {
+                        if (15 + growth.toInt() != progress) {
                             progress = 15 + growth.toInt()
                             updateProgress(progress)
                         }
@@ -148,7 +147,7 @@ class SynchronizationActivity : NavigationActivity() {
             } catch (exception: Exception) {
                 Log.e(TAG, exception.printStackTrace().toString())
                 updateProgress(0)
-                makeToast("Error. Make sure you have internet connection.")
+                makeToast(getString(R.string.connectionError))
             } finally {
                 runOnUiThread {
                     synchronizationButton.isEnabled = true

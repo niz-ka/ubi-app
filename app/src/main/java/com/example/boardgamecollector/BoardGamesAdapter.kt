@@ -26,12 +26,16 @@ class BoardGamesAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.titleTextView.text = games[position].title ?: "No title"
-        holder.yearTextView.text = (games[position].year ?: "-").toString()
-        holder.rankTextView.text = (games[position].rank ?: "-").toString()
-        holder.ordinalNumberTextView.text = (position + 1).toString()
-        if(games[position].image != null)
-            holder.imageView.setImageBitmap(games[position].image)
+        val game = games[position]
+
+        holder.titleTextView.text = game.title ?: context.getString(R.string.noTitle)
+        holder.yearTextView.text = (game.year ?: "-").toString()
+        holder.rankTextView.text = (game.rank ?: "-").toString()
+        holder.ordinalNumberTextView.text =
+            context.getString(R.string.ordinalNumberPlaceholder, (position + 1).toString())
+
+        if (game.image != null)
+            holder.imageView.setImageBitmap(game.image)
         else
             holder.imageView.setImageResource(R.drawable.ic_baseline_dashboard_24)
     }

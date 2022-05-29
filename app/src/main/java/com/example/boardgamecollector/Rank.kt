@@ -3,24 +3,24 @@ package com.example.boardgamecollector
 import android.content.ContentValues
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
-import java.text.SimpleDateFormat
 import java.util.*
 
-class Rank (
+class Rank(
     val id: Long,
     val date: Date?,
     val rank: Int?
-    ) {
+) {
 
     companion object {
-
-        private val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.ENGLISH)
 
         fun insertOne(rank: Rank): Long {
             val db = DatabaseHelper.db.writableDatabase
             val values = ContentValues()
             values.put(DatabaseSchema.Ranks.COLUMN_NAME_ID, rank.id)
-            values.put(DatabaseSchema.Ranks.COLUMN_NAME_DATE, formatter.format(rank.date ?: "01.01.1970 00:00:00"))
+            values.put(
+                DatabaseSchema.Ranks.COLUMN_NAME_DATE,
+                App.formatter.format(rank.date ?: Date())
+            )
             values.put(DatabaseSchema.Ranks.COLUMN_NAME_RANK, rank.rank)
             return db.insert(DatabaseSchema.Ranks.TABLE_NAME, null, values)
         }
@@ -65,7 +65,7 @@ class Rank (
                     val date = getStringOrNull(dateColumn)
                     val rank = getIntOrNull(rankColumn)
 
-                    ranks.add(Rank(id, formatter.parse(date ?: "01.01.1970 00:00:00"), rank))
+                    ranks.add(Rank(id, App.formatter.parse(date ?: App.DEFAULT_DATE), rank))
                 }
 
                 close()
@@ -77,7 +77,7 @@ class Rank (
     }
 
     override fun toString(): String {
-        return "Rank(id=$id, date=${date?.time}, rank=$rank)"
+        return "Rank(id=$id, date=$date, rank=$rank)"
     }
 
 }

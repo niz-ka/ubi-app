@@ -1,12 +1,9 @@
 package com.example.boardgamecollector
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -16,10 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.Executors
 
-class BoardGameExpansionsActivity : NavigationActivity(){
-    companion object {
-        private const val TAG = "BoardGameExpansionsActivity"
-    }
+class BoardGameExpansionsActivity : NavigationActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressCircle: ProgressBar
@@ -30,8 +24,6 @@ class BoardGameExpansionsActivity : NavigationActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board_games)
         create()
-        Log.i(TAG, "Creating activity")
-
         supportActionBar?.title = getString(R.string.boardGameExpansions)
 
         recyclerView = findViewById(R.id.gamesRecyclerView)
@@ -68,7 +60,7 @@ class BoardGameExpansionsActivity : NavigationActivity(){
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.titleAsc -> games.sortWith(compareBy(nullsLast()) { it.title })
             R.id.titleDesc -> games.sortWith(compareByDescending(nullsFirst()) { it.title })
             R.id.yearAsc -> games.sortWith(compareBy(nullsLast()) { it.year })

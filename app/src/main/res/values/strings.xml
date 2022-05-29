@@ -19,4 +19,23 @@
     <string name="noData">Not enough data - %1$s point(s)</string>
     <string name="gameImage">Game Image</string>
     <string name="userHello">Hello, %1$s!</string>
+    <string name="noTitle">No Title</string>
+    <string name="ordinalNumberPlaceholder">%1$s</string>
+    <string name="clearData">Clear Data</string>
+    <string name="removeWarning">"Are you sure? This operation will remove all data from database!"</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="inQueue">"You are in queue. Please wait."</string>
+    <string name="connectionError">"Error. Make sure you have internet connection."</string>
+    <string name="hello">Hello!</string>
+    <string name="numberOfGames">Number of Games</string>
+    <string name="numberOfExpansions">Number of Expansions</string>
+    <string name="removeNonExistentGames">Remove non-existent Games</string>
+    <string name="ordinalNumber">No.</string>
+    <string name="titleAsc">Title A->Z</string>
+    <string name="titleDesc">Title Z->A</string>
+    <string name="rankAsc">Rank Asc</string>
+    <string name="rankDesc">Rank Desc</string>
+    <string name="yearAsc">Year Asc</string>
+    <string name="yearDesc">Year Desc</string>
 </resources>

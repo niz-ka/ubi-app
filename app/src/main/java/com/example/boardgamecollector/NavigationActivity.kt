@@ -1,7 +1,6 @@
 package com.example.boardgamecollector
 
 import android.content.Intent
-import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -10,13 +9,10 @@ import com.google.android.material.navigation.NavigationView
 
 
 abstract class NavigationActivity : AppCompatActivity() {
+
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var navigationView: NavigationView
-
-    companion object {
-        private const val TAG = "NavigationActivity"
-    }
 
     protected fun create() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -57,6 +53,7 @@ abstract class NavigationActivity : AppCompatActivity() {
                 }
 
             }
+
             drawerLayout.closeDrawers()
             true
         }

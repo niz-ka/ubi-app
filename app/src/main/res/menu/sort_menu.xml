@@ -3,20 +3,20 @@
 
     <item
         android:id="@+id/titleAsc"
-        android:title="Title A->Z" />
+        android:title="@string/titleAsc" />
     <item
         android:id="@+id/titleDesc"
-        android:title="Title Z->A" />
+        android:title="@string/titleDesc" />
     <item
         android:id="@+id/rankAsc"
-        android:title="Rank Asc" />
+        android:title="@string/rankAsc" />
     <item
         android:id="@+id/rankDesc"
-        android:title="Rank Desc" />
+        android:title="@string/rankDesc" />
     <item
         android:id="@+id/yearAsc"
-        android:title="Year Asc" />
+        android:title="@string/yearAsc" />
     <item
         android:id="@+id/yearDesc"
-        android:title="Year Desc" />
+        android:title="@string/yearDesc" />
 </menu>

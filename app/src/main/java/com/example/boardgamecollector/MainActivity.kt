@@ -3,14 +3,10 @@ package com.example.boardgamecollector
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 
 class MainActivity : NavigationActivity() {
-    companion object {
-        private const val TAG = "MainActivity"
-    }
 
     private lateinit var gamesNumberTextView: TextView
     private lateinit var expansionsNumberTextView: TextView
@@ -22,9 +18,8 @@ class MainActivity : NavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         create()
-        Log.i(TAG, "Creating activity")
-
         supportActionBar?.title = getString(R.string.home)
+
         DatabaseHelper.db = DatabaseHelper(this)
 
         // DB not exists - start Configuration Activity
@@ -57,11 +52,10 @@ class MainActivity : NavigationActivity() {
     }
 
     private fun showAlertDialog() {
-
         AlertDialog.Builder(this)
-            .setTitle("Clear data")
-            .setMessage("Are you sure? This operation will remove all data from database!")
-            .setPositiveButton("Yes") { _, _ ->
+            .setTitle(getString(R.string.clearData))
+            .setMessage(getString(R.string.removeWarning))
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 DatabaseHelper.db.close()
                 this.deleteDatabase(DatabaseHelper.DATABASE_NAME)
                 val intent = Intent(this, MainActivity::class.java)
@@ -69,7 +63,7 @@ class MainActivity : NavigationActivity() {
                 startActivity(intent)
                 finish()
             }
-            .setNegativeButton("No", null)
+            .setNegativeButton(getString(R.string.no), null)
             .setIcon(R.drawable.ic_baseline_warning_24)
             .show()
     }

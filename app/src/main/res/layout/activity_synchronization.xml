@@ -67,7 +67,7 @@
             android:layout_marginTop="16dp"
             android:minHeight="48dp"
             android:checked="false"
-            android:text="Remove non-existent games"
+            android:text="@string/removeNonExistentGames"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/synchronizationTextView" />
 

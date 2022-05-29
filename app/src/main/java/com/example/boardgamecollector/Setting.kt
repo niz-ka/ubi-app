@@ -7,7 +7,6 @@ class Setting(
     val value: String?,
 ) {
 
-
     companion object {
         fun findOne(key: String): Setting? {
             val db = DatabaseHelper.db.readableDatabase
