@@ -1,5 +1,6 @@
 package com.example.boardgamecollector
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -11,6 +12,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 
 class SynchronizationActivity : NavigationActivity() {
@@ -35,15 +37,35 @@ class SynchronizationActivity : NavigationActivity() {
         removeSwitch = findViewById(R.id.removeSwitch)
 
         val syncSetting = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)
-        if (syncSetting?.value != null) {
-            synchronizationTextView.text = syncSetting.value
+        val lastSync = syncSetting?.value
+        if (lastSync != null) {
+            synchronizationTextView.text = lastSync
         }
 
+        val syncTime = App.formatter.parse(lastSync ?: App.DEFAULT_DATE)?.time
+
         synchronizationButton.setOnClickListener {
-            synchronizationButton.isEnabled = false
-            progressBar.progress = 0
-            synchronize(removeSwitch.isChecked)
+            if (syncTime !== null) {
+                val syncDifference = TimeUnit.MILLISECONDS.toHours(Date().time - syncTime)
+                if (syncDifference < 24) {
+                    AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.synchronization))
+                        .setMessage(getString(R.string.syncWarning))
+                        .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                            beginSynchronization()
+                        }
+                        .setNegativeButton(getString(R.string.no), null)
+                        .setIcon(R.drawable.ic_baseline_warning_24)
+                        .show()
+                } else beginSynchronization()
+            } else beginSynchronization()
         }
+    }
+
+    private fun beginSynchronization() {
+        synchronizationButton.isEnabled = false
+        progressBar.progress = 0
+        synchronize(removeSwitch.isChecked)
     }
 
     private fun connect(url: String, progressStart: Int = 0): HttpURLConnection {
