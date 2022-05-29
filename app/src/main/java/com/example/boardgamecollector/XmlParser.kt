@@ -14,6 +14,10 @@ class XmlParser(inputStream: InputStream) {
 
     private val ns: String? = null
     private val parser: XmlPullParser = Xml.newPullParser()
+    private lateinit var textGamesCollection: List<GameTextModel>
+
+    private var counter: Int = 0
+    private val userCollection = mutableListOf<Game>()
 
     init {
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
@@ -22,6 +26,18 @@ class XmlParser(inputStream: InputStream) {
 
     companion object {
         private const val TAG = "XmlParser"
+        private const val TOKEN_ITEMS = "items"
+        private const val TOKEN_ITEM = "item"
+        private const val TOKEN_SUBTYPE = "subtype"
+        private const val TOKEN_BOARD_GAME = "boardgame"
+        private const val TOKEN_BOARD_GAME_EXPANSION = "boardgameexpansion"
+        private const val TOKEN_NAME = "name"
+        private const val TOKEN_OBJECT_ID = "objectid"
+        private const val TOKEN_YEAR_PUBLISHED = "yearpublished"
+        private const val TOKEN_THUMBNAIL = "thumbnail"
+        private const val TOKEN_NOT_RANKED = "not ranked"
+        private const val TOKEN_RANK = "rank"
+        private const val TOKEN_VALUE = "value"
     }
 
     private inner class GameTextModel(
@@ -32,19 +48,19 @@ class XmlParser(inputStream: InputStream) {
         var image: String?,
     )
 
-    fun parseUserCollection(): List<Game> {
+    fun parseUserCollection(): Int {
         parser.nextTag()
-        parser.require(XmlPullParser.START_TAG, ns, "items")
+        parser.require(XmlPullParser.START_TAG, ns, TOKEN_ITEMS)
 
         val gamesText = mutableListOf<GameTextModel>()
 
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (
                 parser.eventType == XmlPullParser.START_TAG
-                && parser.name == "item"
-                && parser.getAttributeValue(ns, "subtype") in arrayOf(
-                    "boardgame",
-                    "boardgameexpansion"
+                && parser.name == TOKEN_ITEM
+                && parser.getAttributeValue(ns, TOKEN_SUBTYPE) in arrayOf(
+                    TOKEN_BOARD_GAME,
+                    TOKEN_BOARD_GAME_EXPANSION
                 )
             ) {
                 val game = parseGame()
@@ -52,99 +68,97 @@ class XmlParser(inputStream: InputStream) {
             }
         }
 
-        val distinct = gamesText.distinctBy { it.id }
-        return convert(distinct)
+        textGamesCollection = gamesText.distinctBy { it.id }
+        return textGamesCollection.size
     }
 
-    private fun convert(gamesText: List<GameTextModel>): List<Game> {
-        val games = mutableListOf<Game>()
+    fun nextConversion() {
+        val game = textGamesCollection[counter]
 
-        for (game in gamesText) {
-            val id = game.id.toLong()
-            val title = game.title
-            val year = game.year?.toInt()
-            val rank = game.rank?.toInt()
+        val id = game.id.toLong()
+        val title = game.title
+        val year = game.year?.toInt()
+        val rank = game.rank?.toInt()
 
-            var image: Bitmap? = null
-            if (game.image != null) {
-                try {
-                    val url = URL(game.image)
-                    val connection = url.openConnection() as HttpURLConnection
+        var image: Bitmap? = null
+        if (game.image != null) {
+            try {
+                val url = URL(game.image)
+                val connection = url.openConnection() as HttpURLConnection
 
-                    connection.inputStream.use {
-                        image = BitmapFactory.decodeStream(it)
-                    }
-                } catch (exception: Exception) {
-                    Log.e(TAG, exception.toString())
+                connection.inputStream.use {
+                    image = BitmapFactory.decodeStream(it)
                 }
+            } catch (exception: Exception) {
+                Log.e(TAG, exception.toString())
             }
-
-            games.add(Game(id, title, year, rank, image, Game.Type.BOARD_GAME))
         }
 
-        return games
+        userCollection.add(Game(id, title, year, rank, image, Game.Type.BOARD_GAME))
+        ++counter
+    }
+
+    fun getUserCollection(): List<Game> {
+        return userCollection
     }
 
     private fun parseGame(): GameTextModel {
-        parser.require(XmlPullParser.START_TAG, ns, "item")
+        parser.require(XmlPullParser.START_TAG, ns, TOKEN_ITEM)
 
-        val id = parser.getAttributeValue(ns, "objectid")
+        val id = parser.getAttributeValue(ns, TOKEN_OBJECT_ID)
         val gameText = GameTextModel(id, null, null, null, null)
 
-        while (parser.next() != XmlPullParser.END_TAG || parser.name != "item") {
-            // Name -> title
-            if (parser.eventType == XmlPullParser.START_TAG && parser.name == "name") {
-                parser.require(XmlPullParser.START_TAG, ns, "name")
+        while (parser.next() != XmlPullParser.END_TAG || parser.name != TOKEN_ITEM) {
+
+            if (parser.eventType == XmlPullParser.START_TAG && parser.name == TOKEN_NAME) {
+                parser.require(XmlPullParser.START_TAG, ns, TOKEN_NAME)
                 while (true)
                     if (parser.next() == XmlPullParser.TEXT) break
                 gameText.title = parser.text
             }
 
-            // yearpublished -> year
-            if (parser.eventType == XmlPullParser.START_TAG && parser.name == "yearpublished") {
-                parser.require(XmlPullParser.START_TAG, ns, "yearpublished")
+            if (parser.eventType == XmlPullParser.START_TAG && parser.name == TOKEN_YEAR_PUBLISHED) {
+                parser.require(XmlPullParser.START_TAG, ns, TOKEN_YEAR_PUBLISHED)
                 while (true)
                     if (parser.next() == XmlPullParser.TEXT) break
                 gameText.year = parser.text
             }
 
-            // thumbnail -> image
-            if (parser.eventType == XmlPullParser.START_TAG && parser.name == "thumbnail") {
-                parser.require(XmlPullParser.START_TAG, ns, "thumbnail")
+            if (parser.eventType == XmlPullParser.START_TAG && parser.name == TOKEN_THUMBNAIL) {
+                parser.require(XmlPullParser.START_TAG, ns, TOKEN_THUMBNAIL)
                 while (true)
                     if (parser.next() == XmlPullParser.TEXT) break
                 gameText.image = parser.text
             }
 
-            // rank
-            if (parser.eventType == XmlPullParser.START_TAG && parser.name == "rank" && parser.getAttributeValue(
+            if (parser.eventType == XmlPullParser.START_TAG && parser.name == TOKEN_RANK && parser.getAttributeValue(
                     ns,
-                    "name"
-                ) == "boardgame"
+                    TOKEN_NAME
+                ) == TOKEN_BOARD_GAME
             ) {
-                parser.require(XmlPullParser.START_TAG, ns, "rank")
-                val value = parser.getAttributeValue(ns, "value")
-                if (value != null && value.lowercase() != "not ranked")
+                parser.require(XmlPullParser.START_TAG, ns, TOKEN_RANK)
+                val value = parser.getAttributeValue(ns, TOKEN_VALUE)
+                if (value != null && value.lowercase() != TOKEN_NOT_RANKED)
                     gameText.rank = value
             }
 
         }
-        parser.require(XmlPullParser.END_TAG, ns, "item")
+        parser.require(XmlPullParser.END_TAG, ns, TOKEN_ITEM)
         return gameText
     }
 
     fun getExpansionIds(): List<Long> {
         parser.nextTag()
-        parser.require(XmlPullParser.START_TAG, ns, "items")
+        parser.require(XmlPullParser.START_TAG, ns, TOKEN_ITEMS)
 
         val expansionIds = mutableListOf<Long>()
 
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (parser.eventType == XmlPullParser.START_TAG
-                && parser.name == "item"
-                && parser.getAttributeValue(ns, "subtype") == "boardgameexpansion"
+                && parser.name == TOKEN_ITEM
+                && parser.getAttributeValue(ns, TOKEN_SUBTYPE) == TOKEN_BOARD_GAME_EXPANSION
             ) {
-                val id = parser.getAttributeValue(ns, "objectid").toLong()
+                val id = parser.getAttributeValue(ns, TOKEN_OBJECT_ID).toLong()
                 expansionIds.add(id)
             }
         }

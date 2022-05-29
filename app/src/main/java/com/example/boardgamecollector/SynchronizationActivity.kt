@@ -2,19 +2,21 @@ package com.example.boardgamecollector
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.*
+import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import java.net.HttpURLConnection
 import java.net.URL
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.Executors
 
 
 class SynchronizationActivity : NavigationActivity() {
+
     companion object {
         private const val TAG = "SynchronizationActivity"
-        private val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.ENGLISH)
     }
 
     private lateinit var synchronizationTextView: TextView
@@ -26,10 +28,7 @@ class SynchronizationActivity : NavigationActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_synchronization)
         create()
-
-        Log.i(TAG, "Creating Activity")
         supportActionBar?.title = getString(R.string.synchronization)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         synchronizationTextView = findViewById(R.id.synchronizationTextView)
         progressBar = findViewById(R.id.progressBar)
@@ -37,47 +36,31 @@ class SynchronizationActivity : NavigationActivity() {
         removeSwitch = findViewById(R.id.removeSwitch)
 
         val syncSetting = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)
-            ?: throw NullPointerException("Last sync not present in database")
-
-        if (syncSetting.value != null) {
+        if (syncSetting?.value != null) {
             synchronizationTextView.text = syncSetting.value
         }
-
 
         synchronizationButton.setOnClickListener {
             synchronizationButton.isEnabled = false
             progressBar.progress = 0
-            val removeNonExistent = removeSwitch.isChecked
-            synchronize(removeNonExistent)
+            synchronize(removeSwitch.isChecked)
         }
     }
 
-    private fun updateProgress(value: Int) {
-        runOnUiThread {
-            progressBar.progress = value
-        }
-    }
-
-    private fun makeToast(message: String) {
-        runOnUiThread {
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun connect(url: String): HttpURLConnection {
+    private fun connect(url: String, progressStart: Int = 0): HttpURLConnection {
         val requestedUrl = URL(url)
         var connection = requestedUrl.openConnection() as HttpURLConnection
 
         while (connection.responseCode == 202 || connection.responseCode == 429) {
             Log.e(TAG, "Status code: ${connection.responseCode}")
-            updateProgress(0)
+            updateProgress(progressStart)
             connection.disconnect()
 
             makeToast("You are in queue. Please wait.")
 
             for (i in 1..15) {
                 Thread.sleep(1000)
-                updateProgress(i * 5)
+                updateProgress(progressStart + i)
             }
 
             connection = requestedUrl.openConnection() as HttpURLConnection
@@ -91,54 +74,63 @@ class SynchronizationActivity : NavigationActivity() {
 
         executor.execute {
             val username = Setting.findOne(DatabaseSchema.Settings.KEY_USERNAME)?.value
+            val url1 = String.format(App.collectionUrl, username)
+            val url2 = String.format(App.expansionCollectionUrl, username)
 
             try {
-                var connection =
-                    connect("https://boardgamegeek.com/xmlapi2/collection?username=${username}&stats=1")
-
-                updateProgress(75)
+                var connection = connect(url1)
+                updateProgress(15)
 
                 var allGames: List<Game>
                 connection.inputStream.use {
-                    allGames = XmlParser(it).parseUserCollection()
+                    val parser = XmlParser(it)
+                    val size = parser.parseUserCollection()
+                    var progress = 15
+                    val step = 60.0 / size
+                    var growth = step
+
+                    for(i in 1..size) {
+                        parser.nextConversion()
+                        if(15 + growth.toInt() != progress) {
+                            progress = 15 + growth.toInt()
+                            updateProgress(progress)
+                        }
+                        growth += step
+                    }
+                    allGames = parser.getUserCollection()
                 }
+                updateProgress(75)
 
                 Log.d(TAG, "All games size: ${allGames.size}")
 
-                connection =
-                    connect("https://boardgamegeek.com/xmlapi2/collection?username=${username}&subtype=boardgameexpansion")
+                connection = connect(url2, 75)
+                updateProgress(90)
 
                 var expansionIds: List<Long>
                 connection.inputStream.use {
                     expansionIds = XmlParser(it).getExpansionIds()
                 }
 
-                var expansionCounter = 0
-
                 for (game in allGames) {
-                    if (game.id in expansionIds) {
+                    if (game.id in expansionIds)
                         game.type = Game.Type.BOARD_EXPANSION
-                        ++expansionCounter
-                    }
                 }
 
-                Log.d(TAG, "Expansions size: $expansionCounter")
-
                 val lastSync = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)?.value
-                if(lastSync != null) {
+                if (lastSync != null) {
                     val prevGames = Game.findAll(Game.Type.BOARD_GAME).filter { it.rank != null }
                     val ranks = prevGames.map {
-                        Rank(it.id, formatter.parse(lastSync), it.rank)
+                        Rank(it.id, App.formatter.parse(lastSync), it.rank)
                     }
                     Rank.insertMany(ranks)
                 }
 
-                if(removeNonExistent)
+                if (removeNonExistent)
                     Game.deleteAll()
                 Game.insertMany(allGames)
 
                 val date = Calendar.getInstance().time
-                val formattedDate = formatter.format(date)
+                val formattedDate = App.formatter.format(date)
 
                 Setting.insertOrUpdateOne(
                     Setting(
@@ -166,6 +158,18 @@ class SynchronizationActivity : NavigationActivity() {
 
         }
 
+    }
+
+    private fun updateProgress(value: Int) {
+        runOnUiThread {
+            progressBar.progress = value
+        }
+    }
+
+    private fun makeToast(message: String) {
+        runOnUiThread {
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
     }
 }
 
