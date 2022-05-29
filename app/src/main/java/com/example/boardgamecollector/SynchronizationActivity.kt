@@ -37,14 +37,13 @@ class SynchronizationActivity : NavigationActivity() {
         removeSwitch = findViewById(R.id.removeSwitch)
 
         val syncSetting = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)
-        val lastSync = syncSetting?.value
-        if (lastSync != null) {
-            synchronizationTextView.text = lastSync
+        if (syncSetting?.value != null) {
+            synchronizationTextView.text = syncSetting.value
         }
 
-        val syncTime = App.formatter.parse(lastSync ?: App.DEFAULT_DATE)?.time
-
         synchronizationButton.setOnClickListener {
+            val lastSync = Setting.findOne(DatabaseSchema.Settings.KEY_SYNCHRONIZATION)?.value
+            val syncTime = App.formatter.parse(lastSync ?: App.DEFAULT_DATE)?.time
             if (syncTime !== null) {
                 val syncDifference = TimeUnit.MILLISECONDS.toHours(Date().time - syncTime)
                 if (syncDifference < 24) {
